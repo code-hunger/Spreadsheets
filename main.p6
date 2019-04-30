@@ -6,6 +6,10 @@ class IntCell {
     has Int $.val;
 
     method Str { $.val }
+
+    method fromMatch ($match) {
+        IntCell.new(val => $match.Str.Int);
+    }
 }
 
 class FloatCell  {
@@ -14,6 +18,10 @@ class FloatCell  {
     has Num $.val;
 
     method Str { $.val }
+
+    method fromMatch ($match) {
+        FloatCell.new(val => $match.Str.Num);
+    }
 }
 
 class EmptyCell { 
@@ -24,12 +32,12 @@ class EmptyCell {
 
 sub parce-cell-int (Str:D $str) {
     $str ~~ /^<$(IntCell.match)>/;
-    $/ andthen ($/.Str, IntCell.new(val => $/.Str.Int))
+    $/ andthen ($/.Str, IntCell.fromMatch($/))
 }
 
 sub parce-cell-float (Str:D $str) {
     $str ~~ /^<$(FloatCell.match)>/;
-    $/ andthen ($/.Str, FloatCell.new(val => $/.Str.Num))
+    $/ andthen ($/.Str, FloatCell.fromMatch($/))
 }
 
 sub parce-cell-empty (Str) { "", EmptyCell }
