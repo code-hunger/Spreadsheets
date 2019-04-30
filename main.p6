@@ -8,7 +8,7 @@ class IntCell {
     method Str { $.val.Str }
 
     method fromMatch ($match) {
-        IntCell.new(val => $match.Str.Int);
+        IntCell.new(val => $match.Str.Int)
     }
 }
 
@@ -20,7 +20,7 @@ class FloatCell  {
     method Str { $.val.Str }
 
     method fromMatch ($match) {
-        FloatCell.new(val => $match.Str.Num);
+        FloatCell.new(val => $match.Str.Num)
     }
 }
 
@@ -49,13 +49,13 @@ class StringCell {
 my @cell-types = IntCell, FloatCell, StringCell, EmptyCell;
 
 sub attempt-parce (Str:D $str) {
-    for @cell-types {
-        my $pattern = $($_.match);
+    for @cell-types -> $cell-type {
+        my $pattern = $cell-type.match;
         $str ~~ m/^<$pattern>/ or next;
 
-        my ($match, $cell) = ($/.Str, $_.fromMatch($/));
+        my ($match, $cell) = $/.Str, $cell-type.fromMatch: $/;
         if $match.chars == $str.chars or $str.comb[$match.chars] eq ',' {
-            return $match, $cell;
+            return $match, $cell
         }
     }
 }
@@ -71,7 +71,7 @@ sub parse-file (Str:D $fname) {
             my ($match, $cell) = (attempt-parce $str) // do {
                 $*ERR.say: "Error parsing on line {1+@table}: $str";
                 last
-            };
+            }
 
             push @row, $cell;
 
@@ -92,11 +92,11 @@ sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
 }
 
 sub map-join (@arr, &c, Str:D $del) {
-    $del ~ .join($del) ~ $del with @arr.map: &c;
+    $del ~ .join($del) ~ $del with @arr.map: &c
 }
 
 sub print-row (@row, Int:D @widths where *.elems ≥ @row.elems, Str:D $del = '|') {
-    map-join @row, { print-long($_.Str, @widths[$++]) }, $del;
+    map-join @row, { print-long $_.Str, @widths[$++] }, $del
 }
 
 sub print-table (@table, @widths) {
@@ -108,12 +108,12 @@ sub print-table (@table, @widths) {
         once {
             say $row-delimiter;
             say print-row 1..@widths, @widths;
-            say $row-delimiter for 1..2;
+            say $row-delimiter for 1..2
         }
 
         say print-row @row, @widths;
 
-        say $row-delimiter;
+        say $row-delimiter
     }
 }
 
