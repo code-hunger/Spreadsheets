@@ -75,19 +75,22 @@ sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
     sprintf " %{$length}s ", $str
 }
 
+sub print-row (@row, $del = '|') {
+    say $del ~ .join($del) ~ $del
+        given @row.map: { print-long $_.Str, @column-widths[$++]; };
+}
+
 say $row-delimiter;
 for @table -> @row {
     next unless @row.elems;
 
     once {
-        say '|' ~ .join('|') ~ '|'
-            given (^@column-widths).map: { print-long ($_+1).Str, @column-widths[$_] };
+        print-row 1..@column-widths;
         say $row-delimiter for 1..2;
     }
 
     my $i = 0;
-    say '|' ~ .join("|") ~ '|'
-        given @row.map: { print-long $^a.Str, @column-widths[$i++]; };
+    print-row @row;
 
     say $row-delimiter;
 }
