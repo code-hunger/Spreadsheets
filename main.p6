@@ -50,19 +50,18 @@ my @table;
 for 'sample'.IO.lines -> $str is copy {
     my @row;
     while ($str .= trim).chars {
-        with attempt-parce $str -> ($match, $cell) {
-            push @row, $cell;
-            $str = $str.substr($match.chars);
-            $str ~~ s/^\s*\,\s*//;
-        } else {
-            $*ERR.say: "Can't parce string on line {1+@table}! Str: $str";
-            last;
-        }
+        my ($match, $cell) = (attempt-parce $str) // do {
+            $*ERR.say: "Error parsing on line {1+@table}: $str";
+            last
+        };
+
+        push @row, $cell;
+        $str = $str.substr($match.chars);
+        $str ~~ s/^\s*\,\s*//;
     }
     push @table, @row
 }
 
 for @table -> @row {
-    print $_.Str ~ ", " for @row;
-    say();
+    @row.map(*.Str).join(", ").say;
 }
