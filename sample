@@ -1,9 +1,9 @@
-+10,20, 30, -40 
-+12w",x
--.12
-10,,1000, "something wi,th ma,ny commas", no comma
++10,20 , 30, -40 
++12"w" ,   "  x   "    
+    -.12,
+10  ,,1000,    "something wi,th ma,ny commas", no comma
 ,,, 
 ,10
--12.2
-+2.34¢
+,,,-11.2,
+,,,+2.34¢,
 

@@ -35,7 +35,7 @@ class EmptyCell {
 }
 
 class StringCell {
-    my $.match = q{ \" <-["]>* \" };
+    my $.match = q{ \" <-["]>* \"  ||  .+? };
 
     has Str $.val;
 
@@ -46,17 +46,19 @@ class StringCell {
     }
 }
 
-my @cell-types = IntCell, FloatCell, StringCell, EmptyCell;
+my @cell-types = IntCell, FloatCell, EmptyCell, StringCell;
 
 sub attempt-parce (Str:D $str) {
     for @cell-types -> $cell-type {
-        my $pattern = $cell-type.match;
-        $str ~~ m/^<$pattern>/ or next;
+        $str ~~ m/^ <$($cell-type.match)> <?before $$ | \s* ',' > / or next;
 
         my ($match, $cell) = $/.Str, $cell-type.fromMatch: $/;
-        if $match.chars == $str.chars or $str.comb[$match.chars] eq ',' {
+        my $length = $match.chars;
+
+        if $length == $str.chars or $str.substr($length).trim.comb[0] eq ',' {
             return $match, $cell
-        }
+        } 
+        die $str ~ ' ' ~ $match.perl;
     }
 }
 
