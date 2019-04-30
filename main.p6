@@ -49,6 +49,7 @@ sub attempt-parce (Str:D $str) {
 }
 
 my @table;
+my @column-widths;
 
 for 'sample'.IO.lines -> $str is copy {
     my @row;
@@ -59,12 +60,21 @@ for 'sample'.IO.lines -> $str is copy {
         };
 
         push @row, $cell;
+
+        @column-widths[@row.elems-1] max= $cell.val.chars;
+
         $str = $str.substr($match.chars);
         $str ~~ s/^\s*\,\s*//;
     }
-    push @table, @row
+    push @table, @row;
 }
 
+my $row-delimiter = '+' x (@column-widths*3 + sum @column-widths) ~ '+';
+
+say $row-delimiter;
 for @table -> @row {
-    @row.map(*.Str).join(", ").say;
+    next unless @row.elems;
+    my $i = 0;
+    say '|' ~ .join("|") ~ '|' given @row.map: { sprintf(" %{@column-widths[$i++]}s ", $^s.Str) };
+    say $row-delimiter;
 }
