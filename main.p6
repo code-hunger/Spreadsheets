@@ -87,38 +87,33 @@ sub parse-file (Str:D $fname) {
     return @table, @column-widths
 }
 
-my ($table, $column-widths) = parse-file 'sample';
-
-my @column-widths := $column-widths;
-
 sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
     sprintf " %{$length}s ", $str
 }
 
-sub print-row (@row, $del = '|') {
+sub print-row (@row, @column-widths, $del = '|') {
     my Str @formatted = @row.map: { print-long $_.Str, @column-widths[$++] };
 
     say $del ~ @formatted.join($del) ~ $del
 }
 
-
-sub print-table (@table) {
-    my $row-delimiter = '+' x (@column-widths × 3 + sum @column-widths) ~ '+';
+sub print-table (@table, @widths) {
+    my $row-delimiter = '+' x (@widths × 3 + sum @widths) ~ '+';
 
     for @table -> @row {
         next unless @row.elems;
 
         once {
             say $row-delimiter;
-            print-row 1..@column-widths;
+            print-row 1..@widths, @widths;
             say $row-delimiter for 1..2;
         }
 
-        my $i = 0;
-        print-row @row;
+        print-row @row, @widths;
 
         say $row-delimiter;
     }
 }
 
-print-table($table);
+my ($table, $column-widths) = parse-file 'sample';
+print-table($table, $column-widths);
