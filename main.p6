@@ -60,26 +60,36 @@ sub attempt-parce (Str:D $str) {
     }
 }
 
-my @table;
-my Int @column-widths;
+sub parse-file (Str:D $fname) {
+    my @table;
+    my Int @column-widths;
 
-for 'sample'.IO.lines -> $str is copy {
-    my @row;
-    while ($str .= trim).chars {
-        my ($match, $cell) = (attempt-parce $str) // do {
-            $*ERR.say: "Error parsing on line {1+@table}: $str";
-            last
-        };
+    for $fname.IO.lines -> $str is copy {
+        my @row;
 
-        push @row, $cell;
+        while ($str .= trim).chars {
+            my ($match, $cell) = (attempt-parce $str) // do {
+                $*ERR.say: "Error parsing on line {1+@table}: $str";
+                last
+            };
 
-        @column-widths[@row.elems-1] max= $cell.val.chars;
+            push @row, $cell;
 
-        $str = $str.substr($match.chars);
-        $str ~~ s/^\s*\,\s*//;
+            @column-widths[@row.elems-1] max= $cell.val.chars;
+
+            $str = $str.substr($match.chars);
+            $str ~~ s/^\s*\,\s*//
+        }
+
+        push @table, @row
     }
-    push @table, @row;
+
+    return @table, @column-widths
 }
+
+my ($table, $column-widths) = parse-file 'sample';
+
+my @column-widths := $column-widths;
 
 sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
     sprintf " %{$length}s ", $str
@@ -111,4 +121,4 @@ sub print-table (@table) {
     }
 }
 
-print-table(@table);
+print-table($table);
