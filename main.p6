@@ -96,9 +96,7 @@ sub map-join (@arr, &c, Str:D $del) {
 }
 
 sub print-row (@row, Int:D @widths where *.elems ≥ @row.elems, Str:D $del = '|') {
-    with @row.map: { print-long $_.Str, @widths[$++] } {
-        $del ~ .join($del) ~ $del
-    }
+    map-join @row, { print-long($_.Str, @widths[$++]) }, $del;
 }
 
 sub print-table (@table, @widths) {
