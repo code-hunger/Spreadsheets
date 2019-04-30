@@ -34,7 +34,19 @@ class EmptyCell {
     method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
 }
 
-my @cell-types = IntCell, FloatCell, EmptyCell;
+class StringCell {
+    my $.match = q{ \" <-["]>* \" };
+
+    has Str $.val;
+
+    method Str { $.val }
+
+    method fromMatch($match) {
+        StringCell.new(val => $match.Str)
+    }
+}
+
+my @cell-types = IntCell, FloatCell, StringCell, EmptyCell;
 
 sub attempt-parce (Str:D $str) {
     for @cell-types {
