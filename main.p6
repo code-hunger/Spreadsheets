@@ -1,12 +1,16 @@
 #!/usr/bin/env perl6
 
 class IntCell {
+    my $.match = q{< + - >? \d+};
+
     has Int $.val;
 
     method Str { $.val }
 }
 
 class FloatCell  {
+    my $.match = q{ <[+ -]>? \d* \. \d+ };
+
     has Num $.val;
 
     method Str { $.val }
@@ -19,12 +23,12 @@ class EmptyCell {
 }
 
 sub parce-cell-int (Str:D $str) {
-    $str ~~ /^ < + - >? \d+ /;
+    $str ~~ /^<$(IntCell.match)>/;
     $/ andthen ($/.Str, IntCell.new(val => $/.Str.Int))
 }
 
 sub parce-cell-float (Str:D $str) {
-    $str ~~ /^ < + - >? [\d+]? \. \d+/;
+    $str ~~ /^<$(FloatCell.match)>/;
     $/ andthen ($/.Str, FloatCell.new(val => $/.Str.Num))
 }
 
@@ -51,7 +55,7 @@ for 'sample'.IO.lines -> $str is copy {
             $str = $str.substr($match.chars);
             $str ~~ s/^\s*\,\s*//;
         } else {
-            $*ERR.say: "Can't parce string on line {1+@table}!";
+            $*ERR.say: "Can't parce string on line {1+@table}! Str: $str";
             last;
         }
     }
