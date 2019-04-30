@@ -5,7 +5,7 @@ class IntCell {
 
     has Int $.val;
 
-    method Str { $.val }
+    method Str { $.val.Str }
 
     method fromMatch ($match) {
         IntCell.new(val => $match.Str.Int);
@@ -17,7 +17,7 @@ class FloatCell  {
 
     has Num $.val;
 
-    method Str { $.val }
+    method Str { $.val.Str }
 
     method fromMatch ($match) {
         FloatCell.new(val => $match.Str.Num);
@@ -49,7 +49,7 @@ sub attempt-parce (Str:D $str) {
 }
 
 my @table;
-my @column-widths;
+my Int @column-widths;
 
 for 'sample'.IO.lines -> $str is copy {
     my @row;
@@ -71,10 +71,23 @@ for 'sample'.IO.lines -> $str is copy {
 
 my $row-delimiter = '+' x (@column-widths*3 + sum @column-widths) ~ '+';
 
+sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
+    sprintf " %{$length}s ", $str
+}
+
 say $row-delimiter;
 for @table -> @row {
     next unless @row.elems;
+
+    once {
+        say '|' ~ .join('|') ~ '|'
+            given (^@column-widths).map: { print-long ($_+1).Str, @column-widths[$_] };
+        say $row-delimiter for 1..2;
+    }
+
     my $i = 0;
-    say '|' ~ .join("|") ~ '|' given @row.map: { sprintf(" %{@column-widths[$i++]}s ", $^s.Str) };
+    say '|' ~ .join("|") ~ '|'
+        given @row.map: { print-long $^a.Str, @column-widths[$i++]; };
+
     say $row-delimiter;
 }
