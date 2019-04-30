@@ -69,16 +69,17 @@ for 'sample'.IO.lines -> $str is copy {
     push @table, @row;
 }
 
-my $row-delimiter = '+' x (@column-widths*3 + sum @column-widths) ~ '+';
-
 sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
     sprintf " %{$length}s ", $str
 }
 
 sub print-row (@row, $del = '|') {
-    say $del ~ .join($del) ~ $del
-        given @row.map: { print-long $_.Str, @column-widths[$++]; };
+    my Str @formatted = @row.map: { print-long $_.Str, @column-widths[$++] };
+
+    say $del ~ @formatted.join($del) ~ $del
 }
+
+my $row-delimiter = '+' x (@column-widths × 3 + sum @column-widths) ~ '+';
 
 say $row-delimiter;
 for @table -> @row {
