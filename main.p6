@@ -98,7 +98,7 @@ sub print-row (@row, Int:D @widths where *.elems ≥ @row.elems, Str:D $del = '|
 }
 
 sub print-table (@table, @widths) {
-    my $row-delimiter = '+' x (@widths × 3 + sum @widths) ~ '+';
+    my $row-delimiter = '+' ~ .join('+') ~ '+' with @widths.map: { '-' x (2 + $_) };
 
     for @table -> @row {
         next unless @row.elems;
