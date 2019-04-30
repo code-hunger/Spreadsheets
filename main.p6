@@ -25,28 +25,23 @@ class FloatCell  {
 }
 
 class EmptyCell { 
+    my $.match = "^";
+
     has $.val = "";
 
     method Str { "" }
+
+    method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
 }
 
-sub parce-cell-int (Str:D $str) {
-    $str ~~ /^<$(IntCell.match)>/;
-    $/ andthen ($/.Str, IntCell.fromMatch($/))
-}
-
-sub parce-cell-float (Str:D $str) {
-    $str ~~ /^<$(FloatCell.match)>/;
-    $/ andthen ($/.Str, FloatCell.fromMatch($/))
-}
-
-sub parce-cell-empty (Str) { "", EmptyCell }
-
-my @parcers = &parce-cell-int, &parce-cell-float, &parce-cell-empty;
+my @cell-types = IntCell, FloatCell, EmptyCell;
 
 sub attempt-parce (Str:D $str) {
-    for @parcers {
-        my ($match, $cell) = $_($str) // next;
+    for @cell-types {
+        my $pattern = $($_.match);
+        $str ~~ m/^<$pattern>/ or next;
+
+        my ($match, $cell) = ($/.Str, $_.fromMatch($/));
         if $match.chars == $str.chars or $str.comb[$match.chars] eq ',' {
             return $match, $cell;
         }
