@@ -91,19 +91,24 @@ sub print-row (@row, $del = '|') {
     say $del ~ @formatted.join($del) ~ $del
 }
 
-my $row-delimiter = '+' x (@column-widths × 3 + sum @column-widths) ~ '+';
 
-say $row-delimiter;
-for @table -> @row {
-    next unless @row.elems;
+sub print-table (@table) {
+    my $row-delimiter = '+' x (@column-widths × 3 + sum @column-widths) ~ '+';
 
-    once {
-        print-row 1..@column-widths;
-        say $row-delimiter for 1..2;
+    for @table -> @row {
+        next unless @row.elems;
+
+        once {
+            say $row-delimiter;
+            print-row 1..@column-widths;
+            say $row-delimiter for 1..2;
+        }
+
+        my $i = 0;
+        print-row @row;
+
+        say $row-delimiter;
     }
-
-    my $i = 0;
-    print-row @row;
-
-    say $row-delimiter;
 }
+
+print-table(@table);
