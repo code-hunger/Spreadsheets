@@ -1,63 +1,17 @@
 #!/usr/bin/env perl6
+
 use lib '.';
 use Printer;
+use Cells;
 
-class IntCell {
-    my $.match = q{< + - >? \d+};
-
-    has Int $.val;
-
-    method Str { $.val.Str }
-
-    method fromMatch ($match) {
-        IntCell.new(val => $match.Str.Int)
-    }
-}
-
-class FloatCell  {
-    my $.match = q{ <[+ -]>? \d* \. \d+ };
-
-    has Num $.val;
-
-    method Str { $.val.Str }
-
-    method fromMatch ($match) {
-        FloatCell.new(val => $match.Str.Num)
-    }
-}
-
-class EmptyCell { 
-    my $.match = "^";
-
-    has $.val = "";
-
-    method Str { "" }
-
-    method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
-}
-
-class StringCell {
-    my $.match = q{ \" <-["]>* \"  ||  .+? };
-
-    has Str $.val;
-
-    method Str { $.val }
-
-    method fromMatch($match) {
-        StringCell.new(val => $match.Str)
-    }
-}
-
-my @cell-types = IntCell, FloatCell, EmptyCell, StringCell;
-
-multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @cell-types) {
+multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
     $str ~~ m/^ <$($cell-type.match)> <?before \s* [$$ | ',']>/ or return;
 
     return $/.Str, $cell-type.fromMatch: $/
 }
 
 multi sub attempt-parce ($str) {
-    for @cell-types -> $c {
+    for @Cells::types -> $c {
         return $_ with attempt-parce $str, $c
     }
 }
