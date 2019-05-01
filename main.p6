@@ -26,6 +26,7 @@ sub run-command ($command, @params) {
     fail "\"$command\" needs $arity params!" unless $arity == @params;
 
     &action(|@params);
+    CATCH { default { say "Error executing command: $_"  } }
 }
 
 loop {
