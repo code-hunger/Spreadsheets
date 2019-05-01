@@ -48,17 +48,21 @@ class StringCell {
 
 my @cell-types = IntCell, FloatCell, EmptyCell, StringCell;
 
-sub attempt-parce (Str:D $str) {
-    for @cell-types -> $cell-type {
-        $str ~~ m/^ <$($cell-type.match)> <?before $$ | \s* ',' > / or next;
+multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @cell-types) {
+    $str ~~ m/^ <$($cell-type.match)> <?before \s* [$$ | ',']>/ or return;
 
-        my ($match, $cell) = $/.Str, $cell-type.fromMatch: $/;
-        my $length = $match.chars;
+    my ($match, $cell) = $/.Str, $cell-type.fromMatch: $/;
+    my $length = $match.chars;
 
-        if $length == $str.chars or $str.substr($length).trim.comb[0] eq ',' {
-            return $match, $cell
-        } 
-        die $str ~ ' ' ~ $match.perl;
+    if $length == $str.chars or $str.substr($length).trim.comb[0] eq ',' {
+        return $match, $cell
+    } 
+    die $str ~ ' ' ~ $match.perl;
+}
+
+multi sub attempt-parce ($str) {
+    for @cell-types -> $c {
+        return $_ with attempt-parce $str, $c
     }
 }
 
@@ -70,7 +74,7 @@ sub parse-file (Str:D $fname) {
         my @row;
 
         while ($str .= trim).chars {
-            my ($match, $cell) = (attempt-parce $str) // do {
+            my ($match, $cell) = attempt-parce($str) // do {
                 $*ERR.say: "Error parsing on line {1+@table}: $str";
                 last
             }
