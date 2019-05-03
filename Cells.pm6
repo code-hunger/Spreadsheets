@@ -24,7 +24,7 @@ class FloatCell  {
     }
 }
 
-class EmptyCell { 
+class EmptyCell {
     my $.match = "^";
 
     has $.val = "";
@@ -35,7 +35,7 @@ class EmptyCell {
 }
 
 class StringCell {
-    my $.match = q{ \" <-["]>* \"  ||  .+? };
+    my $.match = q{  \" [ <-[\" \\\\]> || '\.' ]* \"  || <-[,]>+? };
 
     has Str $.val;
 

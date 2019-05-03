@@ -3,7 +3,7 @@ unit module Parse;
 use Cells;
 
 multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
-    $str ~~ m/^ <$($cell-type.match)> <?before \s* [$$ | ',']>/ or return;
+    $str ~~ m/^ <$($cell-type.match)> <?before \s* [$$ || ',']>/ or return;
 
     return $/.Str, $cell-type.fromMatch: $/
 }
