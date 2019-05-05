@@ -1,7 +1,13 @@
 unit module Cells;
 
-class IntCell {
-    my $.match = q{< + - >? \d+};
+role Parse {
+    method parse (::?CLASS:U: Str $str) { 
+        $str ~~ m/$($.match)/;
+    }
+ }
+
+class IntCell does Parse {
+    my $.match = q{ <[+ -]>? \d+ };
 
     has Int $.val;
 
@@ -12,7 +18,7 @@ class IntCell {
     }
 }
 
-class FloatCell  {
+class FloatCell does Parse {
     my $.match = q{ <[+ -]>? \d* \. \d+ };
 
     has Num $.val;
@@ -24,7 +30,7 @@ class FloatCell  {
     }
 }
 
-class EmptyCell {
+class EmptyCell does Parse {
     my $.match = "^";
 
     has $.val = "";
@@ -34,7 +40,7 @@ class EmptyCell {
     method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
 }
 
-class StringCell {
+class StringCell does Parse {
     my $.match = q{  \" [ <-[\" \\\\]> || '\.' ]* \"  || <-[,]>+? };
 
     has Str $.val;
