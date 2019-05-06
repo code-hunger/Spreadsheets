@@ -74,9 +74,9 @@ class FormulaCell does Cell {
     method Str { "F := " ~ compute($.val) }
 
     method fromMatch (Match $match where *.list.elems == 1) {
-        my $expr = $match[0].Str orelse fail("No formula in match");
-
-        $.fromVal(makeFormula $expr);
+        with $match[0].Str -> $expr {
+            $.fromVal(makeFormula $expr);
+        }
     }
 }
 
