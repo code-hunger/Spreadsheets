@@ -34,3 +34,14 @@ sub print-table (@table, @widths) is export {
     }
 }
 
+sub compute-widths (@table) is export {
+    my Int @column-widths;
+
+    for @table -> @row {
+        for @row.kv -> $i, $cell {
+            @column-widths[$i] max= $cell.eval(@table).chars
+        }
+    }
+
+    return @column-widths
+}

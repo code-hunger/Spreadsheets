@@ -4,24 +4,19 @@ use lib '.';
 use Printer;
 use Parse;
 
-my @buffer;
+my @table;
 my Int @column-widths;
 
 my %commands =
     open => sub (Str:D $file) {
         fail "File $file does not exist." unless $file.IO.e;
 
-        @buffer = parse-file $file;
-
-        for @buffer -> @row {
-            for @row.kv -> $i, $cell {
-                @column-widths[$i] max= $cell.eval(@buffer).chars
-            }
-        }
+        @table = parse-file $file;
+        @column-widths = compute-widths @table;
     }, print => {
-        fail "No file open!" unless @buffer;
+        fail "No file open!" unless @table;
 
-        print-table @buffer, @column-widths
+        print-table @table, @column-widths
     }
 
 sub run-command ($command, @params) {
