@@ -30,25 +30,27 @@ multi fromTermAndRest (Str $left where .trim.chars == 0, Str $rest) {
 
 sub read-term (Str:D $str) returns Int {
     my Int $depth = 0;
+    my bool $has-braces = $str ~~ /^\(/;
 
     for $str.comb.kv -> Int $i, $c {
         if $c eq '(' {
-            if $depth == 0 and $i != 0 {
+            if !$has-braces {
                 warn "Opening brace met, operator expected at char $i in $str";
                 return $i
             }
+
             ++$depth
         }
 
         if $c eq ')' {
             --$depth;
-            warn "Unmatched closing brace" and return $i if $depth < 0;
 
-            if $depth == 0 {
-                fail "Illegal zero depth after closing brace" unless $str ~~ /^\(/;
-
-                return $i + 1
+            if $depth < 0 || !$has-braces {
+                warn "Unmatched closing brace";
+                return $i 
             }
+
+            return $i + 1 if $depth == 0;
         }
 
         if $depth == 0 and $c eq any @ops {
