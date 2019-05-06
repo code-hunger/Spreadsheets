@@ -26,7 +26,6 @@ multi sub attempt-parce ($str) {
 
 sub parse-file (Str:D $fname) is export {
     my @table;
-    my Int @column-widths;
 
     for $fname.IO.lines -> $str is copy {
         my @row;
@@ -39,8 +38,6 @@ sub parse-file (Str:D $fname) is export {
 
             push @row, $cell;
 
-            @column-widths[@row.elems-1] max= $cell.Str.chars;
-
             $str = $str.substr: $len;
             $str ~~ s/^\s*\,\s*//
         }
@@ -48,6 +45,6 @@ sub parse-file (Str:D $fname) is export {
         push @table, @row
     }
 
-    return @table, @column-widths
+    return @table
 }
 
