@@ -1,7 +1,7 @@
 unit module Cells;
 
 role Parse {
-    method parse (::?CLASS:U: Str $str) { 
+    method parse (::?CLASS:U: Str $str) {
         $str ~~ m/$($.match)/;
     }
  }
@@ -40,8 +40,10 @@ class EmptyCell does Parse {
     method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
 }
 
+our regex escaped is export { [ <-[\" \\]> || \\. ]*  };
+
 class StringCell does Parse {
-    my $.match = q{  \" [ <-[\" \\\\]> || '\.' ]* \"  || <-[,]>+? };
+    my $.match = q! \" (<escaped>) \" !;
 
     has Str $.val;
 

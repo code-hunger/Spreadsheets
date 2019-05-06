@@ -3,15 +3,23 @@ unit module Parse;
 use Cells;
 
 multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
-    $str ~~ m/^ <$($cell-type.match)> <?before \s* [$$ || ',']>/ or return;
+    $str ~~ /^ <$($cell-type.match)> <?before \s* [$$ || ',']>/ or return;
 
     return $/.Str, $cell-type.fromMatch: $/
+}
+
+sub parse-unquoted-str (Str:D $str) {
+    $str ~~ /^ (<-[,]>+) /;
+
+    return $/.Str, Cells::StringCell.fromMatch: $/
 }
 
 multi sub attempt-parce ($str) {
     for @Cells::types -> $c {
         return $_ with attempt-parce $str, $c
     }
+
+    return parse-unquoted-str $str
 }
 
 sub parse-file (Str:D $fname) is export {
