@@ -11,7 +11,7 @@ multi fromString (Str $str where /^R(\N)C(\N)$/) { return ($0 - 1, $1 - 1) }
 multi fromTermAndRest (Str $left where *.trim.chars > 0, Str $rest where .trim.chars > 0) {
     with trim $rest {
         my $op = .substr(0, 1);
-        fail "Expected operator, found '$op'" if $op ne any @ops;
+        fail "Expected operator, found '$op' after $left" if $op ne any @ops;
 
         return Formula.new(
             left => fromString(trim $left),
@@ -28,37 +28,51 @@ multi fromTermAndRest (Str $left where .trim.chars == 0, Str $rest) {
     fail "Left term empty at '$rest'"
 }
 
-multi fromString (Str $str where *.trim.chars > 0) returns Formula {
+sub read-term (Str:D $str) returns Int {
     my Str $term = "";
     my Int $depth = 0;
 
     for $str.comb.kv -> Int $i, $c {
         if $c eq '(' {
             if $depth == 0 and $i != 0 {
-                fail "Opening brace met, operator expected at char $i"
+                warn "Opening brace met, operator expected at char $i in $str";
+                return $term.chars
             }
             ++$depth
         }
 
         if $c eq ')' {
             --$depth;
-            last if $depth < 0;
+            return $term.chars and warn "Unmatched closing brace" if $depth < 0;
 
             if $depth == 0 {
                 fail "Illegal zero depth after closing brace" unless $term ~~ /^\(/;
 
-                return fromTermAndRest $term.substr(1), $str.substr($i + 1)
+                return $term.chars + 1
             }
         }
 
         if $depth == 0 and $c eq any @ops {
-            return fromTermAndRest $term, $str.substr($i)
+            return $term.chars
         }
 
         $term ~= $c
     }
 
-    fail "Unbalanced braces" if $depth != 0;
+    fail "Unbalanced braces in $str" if $depth != 0;
+    return $term.chars
+}
+
+multi fromString (Str $str where *.trim.chars > 0) returns Formula {
+    given read-term $str -> $n {
+        my $term = $str.substr(0..^$n).trim;
+        my $rest = $str.substr($n).trim;
+
+        $term ~~ s/^ \( (.*) \) $/$0/;
+
+        return fromTermAndRest $term, $rest;
+    }
+
     fail "Can't parse '$str'";
 }
 
