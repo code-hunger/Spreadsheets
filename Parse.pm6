@@ -3,7 +3,7 @@ unit module Parse;
 use Cells;
 
 multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
-    with $cell-type.parse($str) -> ($len, $cell) {
+    with $cell-type.parse: $str -> ($len, $cell) {
         if $str.substr($len).trim ~~ /^ \s* [\, || $$] / {
             return $len, $cell
         }
@@ -13,7 +13,7 @@ multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
 sub parse-unquoted-str (Str:D $str) {
     $str ~~ /^ (<-[,]>+) /;
 
-    return $/.chars, Cells::StringCell.fromMatch: $/
+    return $/.chars, Cells::StringCell.new: val => $/.Str
 }
 
 multi sub attempt-parce ($str) {
