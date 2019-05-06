@@ -60,18 +60,22 @@ class StringCell does Cell {
     }
 }
 
+use Formula;
+
 class FormulaCell does Cell {
-    has Str $.val;
+    has Formula $.val;
 
     method parse(Str $str) {
         $str ~~ /^ \= \[ (<-[\[ \]]>+) \] /;
         $/.chars, $.fromMatch($/) if $/;
     }
 
-    method fromMatch (Match $match where *.list.elems == 1) {
-        my $formula = $match[0].Str orelse fail("No formula in match");
+    method Str { "F := " ~ compute($.val) }
 
-        $.fromVal($formula);
+    method fromMatch (Match $match where *.list.elems == 1) {
+        my $str = $match[0].Str orelse fail("No formula in match");
+
+        $.fromVal(Formula.new(left => 10, op => '-', right => 30));
     }
 }
 
