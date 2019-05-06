@@ -39,7 +39,7 @@ sub parse-file (Str:D $fname) is export {
 
             push @row, $cell;
 
-            @column-widths[@row.elems-1] max= $cell.val.chars;
+            @column-widths[@row.elems-1] max= $cell.Str.chars;
 
             $str = $str.substr: $len;
             $str ~~ s/^\s*\,\s*//
