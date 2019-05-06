@@ -60,4 +60,19 @@ class StringCell does Cell {
     }
 }
 
-our constant @types = IntCell, FloatCell, EmptyCell, StringCell;
+class FormulaCell does Cell {
+    has Str $.val;
+
+    method parse(Str $str) {
+        $str ~~ /^ \= \[ (<-[\[ \]]>+) \] /;
+        $/.chars, $.fromMatch($/) if $/;
+    }
+
+    method fromMatch (Match $match where *.list.elems == 1) {
+        my $formula = $match[0].Str orelse fail("No formula in match");
+
+        $.fromVal($formula);
+    }
+}
+
+our constant @types = IntCell, FloatCell, EmptyCell, StringCell, FormulaCell;
