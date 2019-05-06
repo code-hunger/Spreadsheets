@@ -6,7 +6,7 @@ my regex float { \-? \d* \.? \d+ }
 
 multi fromString (Str $str where /^ <float> $/) { return $str.Rat }
 
-multi fromString (Str $str where /^R(\N)C(\N)$/) { return ($0, $1) }
+multi fromString (Str $str where /^R(\N)C(\N)$/) { return ($0 - 1, $1 - 1) }
 
 multi fromTermAndRest (Str $left where *.trim.chars > 0, Str $rest where .trim.chars > 0) {
     with trim $rest {
