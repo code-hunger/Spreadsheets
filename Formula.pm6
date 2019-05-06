@@ -33,9 +33,31 @@ multi fromString ($str where /\D/) {
     my @chars = $str.comb;
 
     my Str $term = "";
+    my Int $depth = 0;
 
     for @chars.kv -> Int $i, $c {
-        if $c eq any @ops {
+        say "Term: $term: Depth: $depth";
+
+        if $c eq '(' {
+            if $depth == 0 and $i != 0 {
+                fail "Opening brace met, operator expected at char $i"
+            }
+            ++$depth
+        }
+
+        if $c eq ')' {
+            --$depth;
+            if $depth == 0 {
+                $term = $term.substr(1); # remove first '('
+
+                next if $i == @chars - 1 || @chars[$i+1] eq any @ops;
+
+                fail "Operator expected after closing brace";
+            }
+        }
+
+        if $depth == 0 and $c eq any @ops {
+            say "Op!";
             my $left = fromString $term.trim;
             my $right = fromString $str.substr($i + 1).trim;
 
@@ -44,6 +66,9 @@ multi fromString ($str where /\D/) {
 
         $term ~= $c
     }
+
+    fail "Unbalanced braces" if $depth > 0;
+    fail "Can't parse $str";
 }
 
 sub makeFormula (Str $str) is export { return fromString trim $str }
