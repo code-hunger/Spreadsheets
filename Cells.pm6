@@ -5,7 +5,7 @@ role Parse {
         my $pattern = $.match;
 
         $str ~~ /^ <{$pattern}> /;
-        .chars, ::?CLASS.fromMatch: $_ with $/
+        .chars, self.fromMatch: $_ with $/
     }
 }
 
@@ -17,7 +17,7 @@ class IntCell does Parse {
     method Str { $.val.Str }
 
     method fromMatch ($match) {
-        IntCell.new(val => $match.Str.Int)
+        self.new(val => $match.Str.Int)
     }
 }
 
@@ -29,7 +29,7 @@ class FloatCell does Parse {
     method Str { $.val.Str }
 
     method fromMatch ($match) {
-        FloatCell.new(val => $match.Str.Num)
+        self.new(val => $match.Str.Num)
     }
 }
 
@@ -40,7 +40,7 @@ class EmptyCell does Parse {
 
     method Str { "" }
 
-    method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
+    method fromMatch ($match where $match.Str.chars == 0) { self.new }
 }
 
 class StringCell does Parse {
@@ -50,7 +50,7 @@ class StringCell does Parse {
 
     method Str { $.val }
 
-    method parse($str) {
+    method parse(Str $str) {
         $str ~~ /^ \" (<escaped>) \" / orelse return;
 
         my ($val, $len) = $/[0].Str, $/.chars;
