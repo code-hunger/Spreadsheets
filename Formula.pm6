@@ -28,6 +28,18 @@ multi fromString ($str where /^ <float> $/) { return $str.Rat }
 
 multi fromString ($str where /^R(\N)C(\N)$/) { return ($0, $1) }
 
+multi fromString (Str $left, Str $rest) {
+    with trim $rest {
+        my $op = .substr(0, 1);
+        fail "Expected operator, found $op" if $op ne any @ops;
+
+        return Formula.new(
+            left => fromString(trim $left),
+            :$op,
+            right => fromString .substr(1).trim)
+    }
+}
+
 multi fromString ($str where /\D/) {
     say "Calling from string with $str";
     my @chars = $str.comb;
@@ -48,6 +60,7 @@ multi fromString ($str where /\D/) {
         if $c eq ')' {
             --$depth;
             if $depth == 0 {
+                fail "Illegal zero depth after closing brace" unless $term ~~ /^\(/;
                 $term = $term.substr(1); # remove first '('
 
                 next if $i == @chars - 1 || @chars[$i+1] eq any @ops;
@@ -57,11 +70,7 @@ multi fromString ($str where /\D/) {
         }
 
         if $depth == 0 and $c eq any @ops {
-            say "Op!";
-            my $left = fromString $term.trim;
-            my $right = fromString $str.substr($i + 1).trim;
-
-            return Formula.new: :$left, op => $c, :$right;
+            return fromString $term, $str.substr($i) 
         }
 
         $term ~= $c
