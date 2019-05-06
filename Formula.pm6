@@ -30,8 +30,10 @@ multi fromString ($str where /^R(\N)C(\N)$/) { return ($0, $1) }
 
 multi fromString (Str $left, Str $rest) {
     with trim $rest {
+        return fromString $left if .comb == 0;
+
         my $op = .substr(0, 1);
-        fail "Expected operator, found $op" if $op ne any @ops;
+        fail "Expected operator, found '$op'" if $op ne any @ops;
 
         return Formula.new(
             left => fromString(trim $left),
@@ -61,16 +63,13 @@ multi fromString ($str where /\D/) {
             --$depth;
             if $depth == 0 {
                 fail "Illegal zero depth after closing brace" unless $term ~~ /^\(/;
-                $term = $term.substr(1); # remove first '('
 
-                next if $i == @chars - 1 || @chars[$i+1] eq any @ops;
-
-                fail "Operator expected after closing brace";
+                return fromString $term.substr(1), $str.substr($i + 1)
             }
         }
 
         if $depth == 0 and $c eq any @ops {
-            return fromString $term, $str.substr($i) 
+            return fromString $term, $str.substr($i)
         }
 
         $term ~= $c
