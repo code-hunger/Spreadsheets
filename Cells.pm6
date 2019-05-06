@@ -54,4 +54,4 @@ class StringCell does Parse {
     }
 }
 
-our @types = IntCell, FloatCell, EmptyCell, StringCell;
+our constant @types = IntCell, FloatCell, EmptyCell, StringCell;
