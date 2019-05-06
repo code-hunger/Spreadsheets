@@ -12,6 +12,7 @@ role RegexParse {
 }
 
 role Cell is export {
+    method fromVal ($val) { self.new(val => $val) }
     method Str { $.val.Str }
     method parse (::?CLASS:U: Str $str) { ... }
 }
@@ -22,7 +23,7 @@ class IntCell does Cell does RegexParse {
     has Int $.val;
 
     method fromMatch ($match) {
-        self.new(val => $match.Str.Int)
+        $.fromVal($match.Str.Int)
     }
 }
 
@@ -32,7 +33,7 @@ class FloatCell does Cell does RegexParse {
     has Num $.val;
 
     method fromMatch ($match) {
-        self.new(val => $match.Str.Num)
+        $.fromVal($match.Str.Num)
     }
 }
 
@@ -55,7 +56,7 @@ class StringCell does Cell {
         my ($val, $len) = $/[0].Str, $/.chars;
         $val ~~ s:g/\\(.)/$0/;
 
-        return $len, self.new: val => $val
+        return $len, self.fromVal($val)
     }
 }
 
