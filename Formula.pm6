@@ -3,7 +3,7 @@ class Formula {
     has $.op;
     has $.right;
 
-    method Str { $.left.Str ~ " " ~ $.op.Str ~ " " ~ $.right.Str }
+    method Str { '(' ~ $.left.Str ~ " " ~ $.op.Str ~ " " ~ $.right.Str ~ ')' }
 }
 
 multi sub compute(Formula $f) is export {
@@ -24,7 +24,7 @@ my @ops = '+', '-', '*', '/', '^';
 
 my regex float { \-? \d* \.? \d+ }
 
-multi fromString ($str where /^ <float> $/) { return $str.Num }
+multi fromString ($str where /^ <float> $/) { return $str.Rat }
 
 multi fromString ($str where /^R(\N)C(\N)$/) { return ($0, $1) }
 
