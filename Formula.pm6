@@ -12,7 +12,11 @@ multi sub compute(Formula $f) is export {
     return compute $left, $f.op, $right;
 }
 
-multi sub compute($x where Num) { $x }
+multi sub compute($x where Rat|Num|Int) { $x }
+
+multi sub compute($x where .elems == 2) {
+    fail "To compute a formula with a cell reference, please provide a table context.";
+}
 
 multi sub compute($x, '+', $y) { $x + $y }
 multi sub compute($x, '-', $y) { $x - $y }
