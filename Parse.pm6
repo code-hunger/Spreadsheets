@@ -2,7 +2,7 @@ unit module Parse;
 
 use Cells;
 
-multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
+multi sub attempt-parce (Str:D $str, Cell $cell-type) {
     with $cell-type.parse: $str -> ($len, $cell) {
         if $str.substr($len).trim ~~ /^ \s* [\, || $$] / {
             return $len, $cell
