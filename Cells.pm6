@@ -43,7 +43,7 @@ class EmptyCell does Parse {
     method fromMatch ($match where $match.Str.chars == 0) { EmptyCell.new }
 }
 
-our regex escaped is export { [ <-[\" \\]> || \\. ]*  };
+my regex escaped { [ <-[\" \\]> || \\. ]*  };
 
 class StringCell does Parse {
     my $.match = q! \" (<escaped>) \" !;
