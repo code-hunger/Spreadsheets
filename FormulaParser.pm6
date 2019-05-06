@@ -29,38 +29,37 @@ multi fromTermAndRest (Str $left where .trim.chars == 0, Str $rest) {
 }
 
 sub read-term (Str:D $str) returns Int {
-    my Str $term = "";
     my Int $depth = 0;
 
     for $str.comb.kv -> Int $i, $c {
         if $c eq '(' {
             if $depth == 0 and $i != 0 {
                 warn "Opening brace met, operator expected at char $i in $str";
-                return $term.chars
+                return $i
             }
             ++$depth
         }
 
         if $c eq ')' {
             --$depth;
-            return $term.chars and warn "Unmatched closing brace" if $depth < 0;
+            warn "Unmatched closing brace" and return $i if $depth < 0;
 
             if $depth == 0 {
-                fail "Illegal zero depth after closing brace" unless $term ~~ /^\(/;
+                fail "Illegal zero depth after closing brace" unless $str ~~ /^\(/;
 
-                return $term.chars + 1
+                return $i + 1
             }
         }
 
         if $depth == 0 and $c eq any @ops {
-            return $term.chars
+            return $i
         }
 
-        $term ~= $c
+        LAST {
+            fail "Unbalanced braces in $str" unless $depth == 0;
+            return $i
+        }
     }
-
-    fail "Unbalanced braces in $str" if $depth != 0;
-    return $term.chars
 }
 
 multi fromString (Str $str where *.trim.chars > 0) returns Formula {
@@ -72,8 +71,6 @@ multi fromString (Str $str where *.trim.chars > 0) returns Formula {
 
         return fromTermAndRest $term, $rest;
     }
-
-    fail "Can't parse '$str'";
 }
 
 sub makeFormula (Str $str) is export returns Formula { return fromString trim $str }
