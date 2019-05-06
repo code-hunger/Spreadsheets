@@ -1,6 +1,8 @@
 unit module Cells;
 
-role Parse {
+role RegexParse {
+    method fromMatch(::?CLASS:U: Match) { ... }
+
     method parse (::?CLASS:U: Str $str) {
         my $pattern = $.match;
 
@@ -9,11 +11,12 @@ role Parse {
     }
 }
 
-role Cell does Parse is export {
+role Cell is export {
     method Str { $.val.Str }
+    method parse (::?CLASS:U: Str $str) { ... }
 }
 
-class IntCell does Cell {
+class IntCell does Cell does RegexParse {
     my $.match = q{ <[+ -]>? \d+ };
 
     has Int $.val;
@@ -23,7 +26,7 @@ class IntCell does Cell {
     }
 }
 
-class FloatCell does Cell {
+class FloatCell does Cell does RegexParse {
     my $.match = q{ <[+ -]>? \d* \. \d+ };
 
     has Num $.val;
@@ -33,7 +36,7 @@ class FloatCell does Cell {
     }
 }
 
-class EmptyCell does Cell {
+class EmptyCell does Cell does RegexParse {
     my $.match = "^";
 
     has $.val = "";
