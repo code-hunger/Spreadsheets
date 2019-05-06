@@ -2,9 +2,12 @@ unit module Cells;
 
 role Parse {
     method parse (::?CLASS:U: Str $str) {
-        $str ~~ m/$($.match)/;
+        my $pattern = $.match;
+
+        $str ~~ /^ <{$pattern}> /;
+        .chars, ::?CLASS.fromMatch: $_ with $/
     }
- }
+}
 
 class IntCell does Parse {
     my $.match = q{ <[+ -]>? \d+ };

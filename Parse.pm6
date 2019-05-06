@@ -3,15 +3,17 @@ unit module Parse;
 use Cells;
 
 multi sub attempt-parce (Str:D $str, $cell-type where * (elem) @Cells::types) {
-    $str ~~ /^ <$($cell-type.match)> <?before \s* [$$ || ',']>/ or return;
-
-    return $/.Str, $cell-type.fromMatch: $/
+    with $cell-type.parse($str) -> ($len, $cell) {
+        if $str.substr($len).trim ~~ /^ \s* [\, || $$] / {
+            return $len, $cell
+        }
+    }
 }
 
 sub parse-unquoted-str (Str:D $str) {
     $str ~~ /^ (<-[,]>+) /;
 
-    return $/.Str, Cells::StringCell.fromMatch: $/
+    return $/.chars, Cells::StringCell.fromMatch: $/
 }
 
 multi sub attempt-parce ($str) {
@@ -30,7 +32,7 @@ sub parse-file (Str:D $fname) is export {
         my @row;
 
         while ($str .= trim).chars {
-            my ($match, $cell) = attempt-parce($str) // do {
+            my ($len, $cell) = attempt-parce($str) // do {
                 $*ERR.say: "Error parsing on line {1+@table}: $str";
                 last
             }
@@ -39,7 +41,7 @@ sub parse-file (Str:D $fname) is export {
 
             @column-widths[@row.elems-1] max= $cell.val.chars;
 
-            $str = $str.substr($match.chars);
+            $str = $str.substr: $len;
             $str ~~ s/^\s*\,\s*//
         }
 
