@@ -12,7 +12,7 @@ multi sub compute(Formula $f) is export {
     return compute $left, $f.op, $right;
 }
 
-multi sub compute($x) { $x }
+multi sub compute($x where Num) { $x }
 
 multi sub compute($x, '+', $y) { $x + $y }
 multi sub compute($x, '-', $y) { $x - $y }
