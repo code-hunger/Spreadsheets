@@ -13,8 +13,10 @@ role RegexParse {
 
 role Cell is export {
     method fromVal ($val) { self.new(val => $val) }
-    method Str { $.val.Str }
     method parse (::?CLASS:U: Str $str) { ... }
+
+    method Str { $.val.Str }
+    method eval ($context) { return self.Str }
 }
 
 class IntCell does Cell does RegexParse {
@@ -62,6 +64,7 @@ class StringCell does Cell {
 
 use Formula;
 use FormulaParser;
+use ContextFormula;
 
 class FormulaCell does Cell {
     has Formula $.val;
@@ -71,7 +74,9 @@ class FormulaCell does Cell {
         $/.chars, $.fromMatch($/) if $/;
     }
 
-    method Str { "F := " ~ compute($.val) }
+    method Str { fail 'Do not call Str on a formula cell'; "F := " ~ compute $.val }
+
+    method eval ($context) returns Str(Cool) { compute $.val, $context }
 
     method fromMatch (Match $match where *.list.elems == 1) {
         with $match[0].Str -> $expr {
