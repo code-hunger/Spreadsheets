@@ -61,6 +61,7 @@ class StringCell does Cell {
 }
 
 use Formula;
+use FormulaParser;
 
 class FormulaCell does Cell {
     has Formula $.val;
@@ -73,9 +74,9 @@ class FormulaCell does Cell {
     method Str { "F := " ~ compute($.val) }
 
     method fromMatch (Match $match where *.list.elems == 1) {
-        my $str = $match[0].Str orelse fail("No formula in match");
+        my $expr = $match[0].Str orelse fail("No formula in match");
 
-        $.fromVal(Formula.new(left => 10, op => '-', right => 30));
+        $.fromVal(makeFormula $expr);
     }
 }
 
