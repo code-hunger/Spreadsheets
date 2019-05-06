@@ -26,9 +26,9 @@ multi fromTermAndRest (Str $left, Str $rest where .trim.chars == 0) {
 
 multi fromTermAndRest (Str $left where .trim.chars == 0, Str $rest) {
     fail "Left term empty at '$rest'"
- }
+}
 
-multi fromString (Str $str where *.trim.chars > 0) {
+multi fromString (Str $str where *.trim.chars > 0) returns Formula {
     my Str $term = "";
     my Int $depth = 0;
 
@@ -42,6 +42,8 @@ multi fromString (Str $str where *.trim.chars > 0) {
 
         if $c eq ')' {
             --$depth;
+            last if $depth < 0;
+
             if $depth == 0 {
                 fail "Illegal zero depth after closing brace" unless $term ~~ /^\(/;
 
@@ -56,8 +58,8 @@ multi fromString (Str $str where *.trim.chars > 0) {
         $term ~= $c
     }
 
-    fail "Unbalanced braces" if $depth > 0;
+    fail "Unbalanced braces" if $depth != 0;
     fail "Can't parse '$str'";
 }
 
-sub makeFormula (Str $str) is export { return fromString trim $str }
+sub makeFormula (Str $str) is export returns Formula { return fromString trim $str }
