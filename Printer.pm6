@@ -13,7 +13,10 @@ multi print-row (@row, Int:D @widths where *.elems ≥ @row.elems, Str:D $del = 
 }
 
 multi print-row (@context, @row, Int:D @widths where *.elems ≥ @row.elems, Str:D $del = '|') {
-    map-join @row, { print-long $_.eval(@context), @widths[$++] }, $del
+    map-join @row, -> $cell {
+        my $val = do with $cell { $cell.eval(@context) } else { "<?>" }
+        print-long $val, @widths[$++]
+    }, $del
 }
 
 sub print-table (@table, @widths) is export {
