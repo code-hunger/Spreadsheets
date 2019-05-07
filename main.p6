@@ -3,9 +3,21 @@
 use lib '.';
 use Printer;
 use Parse;
+use Cells;
 
 my @table;
 my Int @column-widths;
+
+sub confirmEdit (Int $x, Int $y, Cell:D $new) {
+    my $old := @table[$y][$x]; # Note: this is a reference!
+
+    if $old.DEFINITE {
+        my $resp = prompt "Will replace '$old.eval(@table)' with '$new.eval(@table)'";
+        return if $resp eq 'n'|'N';
+    }
+
+    $old = $new;
+}
 
 my %commands =
     open => sub (Str:D $file) {
@@ -17,19 +29,11 @@ my %commands =
         fail "No file open!" unless @table;
 
         print-table @table, @column-widths
-    }, edit => sub (Int(Str) $y, Int(Str) $x) {
+    }, edit => sub (Int(Str) $x, Int(Str) $y) {
         fail "No file open" unless @table;
 
-        with attempt-parse prompt 'New val: ' -> ($len, $new) {
-            fail without $new;
-
-            my $old := @table[$x-1][$y-1]; # Note: this is a reference!
-            if $old.DEFINITE {
-                my $resp = prompt "Will replace '$old.eval(@table)' with '$new.eval(@table)'";
-                return if $resp eq 'n'|'N';
-            }
-
-            $old = $new;
+        with attempt-parse prompt 'New val: ' -> (Int, Cell:D $new) {
+            confirmEdit $x - 1, $y - 1, $new
         }
     }
 
