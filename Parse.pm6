@@ -16,7 +16,7 @@ sub parse-unquoted-str (Str:D $str) {
     return $/.chars, Cells::StringCell.new: val => $/.Str
 }
 
-multi sub attempt-parse ($str) {
+multi sub attempt-parse ($str) is export {
     for @Cells::types -> $c {
         return $_ with attempt-parse $str, $c
     }
