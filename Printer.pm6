@@ -42,6 +42,14 @@ sub print-table (@table, @widths) is export {
     }
 }
 
+sub compute-width (@table, Int $col) is export {
+    my Int $width = 0;
+    for @table -> @row {
+        $width max= $_.eval(@table).chars with @row[$col];
+    }
+    return $width
+}
+
 sub compute-widths (@table) is export {
     my Int @column-widths;
 

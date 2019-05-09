@@ -18,7 +18,7 @@ sub confirmEdit (Int $x, Int $y, Cell:D $new) {
     }
 
     $old = $new;
-    @column-widths[$x] max= $newStr.chars;
+    @column-widths[$x] = compute-width @table, $x;
 }
 
 my %commands =
