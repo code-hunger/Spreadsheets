@@ -1,7 +1,12 @@
 unit module Printer;
 
-sub print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
+multi print-long (Str:D $str, Int:D $length where * ≥ $str.chars) {
     sprintf " %{$length}s ", $str
+}
+
+multi print-long (Str:D $str, Int $length) {
+    warn "Field width less than string length: $length < $str.chars()";
+    print $str
 }
 
 sub map-join (@arr, &c, Str:D $del) {
