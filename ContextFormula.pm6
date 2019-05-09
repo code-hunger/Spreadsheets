@@ -9,6 +9,13 @@ multi sub compute(BinaryFormula $f, $context) is export {
 
 multi sub compute($x where Rat|Num|Int, $context) { $x }
 
+multi sub compute (Str $x) {
+    return $0.Rat if $x ~~ /^([\d*\.]?\d+)/;
+
+    warn "Can't parse '$x' in formula. Will use '0'.";
+    return 0
+}
+
 multi sub compute($cell where .elems == 2, $context) {
     compute $context[$cell[0]][$cell[1]].val
  }
