@@ -1,4 +1,4 @@
-class Formula {
+class BinaryFormula {
     has $.left;
     has $.op;
     has $.right;
@@ -6,7 +6,7 @@ class Formula {
     method Str { '(' ~ $.left.Str ~ " " ~ $.op.Str ~ " " ~ $.right.Str ~ ')' }
 }
 
-multi sub compute(Formula $f) is export {
+multi sub compute(BinaryFormula $f) is export {
     my ($left, $right) = compute($f.left), compute($f.right);
 
     return compute $left, $f.op, $right;

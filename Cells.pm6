@@ -67,7 +67,7 @@ use FormulaParser;
 use ContextFormula;
 
 class FormulaCell does Cell {
-    has Formula $.val;
+    has $.val;
 
     method parse(Str $str) {
         $str ~~ /^ \= \[ (<-[\[ \]]>+) \] /;

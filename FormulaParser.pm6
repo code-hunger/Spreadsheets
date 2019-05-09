@@ -13,7 +13,7 @@ multi fromTermAndRest (Str $left where *.trim.chars > 0, Str $rest where .trim.c
         my $op = .substr(0, 1);
         fail "Expected operator, found '$op' after $left" if $op ne any @ops;
 
-        return Formula.new(
+        return BinaryFormula.new(
             left => fromString(trim $left),
             :$op,
             right => fromString .substr(1).trim)
@@ -53,7 +53,7 @@ sub read-term (Str:D $str) returns Int {
     }
 }
 
-multi fromString (Str $str where *.trim.chars > 0) returns Formula {
+multi fromString (Str $str where *.trim.chars > 0) {
     given read-term $str -> $n {
         my $term = $str.substr(0..^$n).trim;
         my $rest = $str.substr($n).trim;
@@ -64,4 +64,4 @@ multi fromString (Str $str where *.trim.chars > 0) returns Formula {
     }
 }
 
-sub makeFormula (Str $str) is export returns Formula { return fromString trim $str }
+sub makeFormula (Str $str) is export { return fromString trim $str }

@@ -1,6 +1,6 @@
 use Formula;
 
-multi sub compute(Formula $f, $context) is export {
+multi sub compute(BinaryFormula $f, $context) is export {
     my $left  = compute $f.left, $context orelse fail "Can't compute left " ~ $f.left;
     my $right = compute $f.right, $context orelse fail "Can't compute right " ~ $f.right;
 
