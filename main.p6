@@ -10,13 +10,15 @@ my Int @column-widths;
 
 sub confirmEdit (Int $x, Int $y, Cell:D $new) {
     my $old := @table[$y][$x]; # Note: this is a reference!
+    my $newStr = $new.eval(@table);
 
     if $old.DEFINITE {
-        my $resp = prompt "Will replace '$old.eval(@table)' with '$new.eval(@table)'";
+        my $resp = prompt "Will replace '$old.eval(@table)' with '$newStr'";
         return if $resp eq 'n'|'N';
     }
 
     $old = $new;
+    @column-widths[$x] max= $newStr.chars;
 }
 
 my %commands =
